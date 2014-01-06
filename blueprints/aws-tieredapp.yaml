@@ -1,0 +1,12 @@
+--- # aws-tieredapp
+summary: Three-tiered web application environment
+description: >
+  This more complex example creates a VPC with stateless and stateful subnets
+  on EC2, and a S3 bucket and RDS database for shared storage, using
+  CloudFormation.  It also bootstraps Puppet.
+provider: aws
+parameters:
+  FrontendInstanceType: m1.small
+  FrontendInstanceCount: 2
+  BackendInstanceType: m1.small
+  BackendInstanceCount: 2

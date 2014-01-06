@@ -1,0 +1,81 @@
+{% import 'Parameters/Instance-Parameters.json' as inst_params %}
+{% import 'Resources/Autoscale-Fleet.json'      as fleet   with context %}
+{% import 'Resources/Host.json'                 as host    with context %}
+{% import 'Resources/Network-Tier.json'         as network with context %}
+{% import 'Resources/Load-Balancer.json'        as elb     with context %}
+{% import 'Resources/RDS.json'                  as rds     with context %}
+{% import 'Resources/S3-Bucket.json'            as bucket  with context %}
+{% import 'Resources/Wait-Objects.json'         as wait    with context %}
+{% import 'Outputs/ELB-URL.json'                as elb_url with context %}
+{% import 'Outputs/RDS.json'                    as rds_out with context %}
+{% import 'Outputs/S3-Bucket.json'              as s3_out  with context %}
+
+{
+  "AWSTemplateFormatVersion" : "2010-09-09",
+
+  "Description" : "Three-tiered VPC Deployment",
+
+  "Parameters" : {
+
+    {% include 'Parameters/General-Instance-Parameters.json' %},
+    {% include 'Parameters/AZ-Parameters.json' %},
+    {% include 'Parameters/RDS-Parameters.json' %},
+    {% include 'Parameters/SES-Parameters.json' %},
+    {{ inst_params.inst_params(name="Public") }},
+    {{ inst_params.inst_params(name="Private") }}
+
+  },
+
+  "Mappings" : {
+    {% include 'Mappings/AWS-Instance-Mappings.json' %}
+    {% include 'Mappings/AWS-NAT-Instance-Mappings.json' %}
+    {% include 'Mappings/Subnet-Mappings.json' %}
+  },
+
+  "Resources" : {
+    {% include 'Resources/VPC.json' %},
+
+    {% include 'Resources/NAT.json' %},
+    {% include 'Resources/BastionHost.json' %},
+
+    {{ bucket.bucket(name='Persistence') }},
+
+    {{ network.public_network(name="Public", subnet_space="PublicA") }},
+    {{ network.private_network(name="Private", subnet_space="PrivateTier1A", nat_device='NATDevice') }},
+    {{ network.private_network(name="DataA", subnet_space="DataA", nat_device='NATDevice') }},
+    {{ network.private_network(name="DataB", subnet_space="DataB", nat_device='NATDevice') }},
+
+    {# Stateless tier #}
+    {{ host.host(name='StatelessTierHost', ports=[80], subnet='PrivateSubnet') }},
+    {{ elb.load_balancer(name='Public', subnet='PublicSubnet', port=80) }},
+    {{ fleet.fleet(name='Stateless',
+                   subnet='Private',
+                   elb='PublicElasticLoadBalancer',
+                   bucket='PersistenceS3Bucket')
+     }},
+
+    {# Stateful tier #}
+    {{ host.host(name='StatefulTierHost', ports=[8080], subnet='PrivateSubnet') }},
+    {{ elb.load_balancer(name='Private', subnet='PrivateSubnet', port=8080) }},
+    {{ fleet.fleet(name='Stateful',
+                   ports=[8080],
+                   subnet='PrivateSubnet',
+                   elb='PrivateElasticLoadBalancer',
+                   bucket='PersistenceS3Bucket')
+     }},
+
+    {{ rds.rds(name='Persistence',
+               subnet1='DataASubnet',
+               subnet2='DataBSubnet',
+               db_access_range='0.0.0.0/24') }}
+  },
+
+  "Outputs" : {
+    {% include 'Outputs/BastionHost.json' %},
+    {{ elb_url.elb(name="Public") }},
+    {{ elb_url.elb(name="Private") }},
+    {{ rds_out.mysql(name="Persistence") }},
+    {{ s3_out.bucket(name="Persistence") }}
+  }
+}
+{# vim: set ft=jinja ts=4 sw=2 tw=0 et=1 foldmethod=syntax :#}

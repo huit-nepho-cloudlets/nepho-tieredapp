@@ -6,7 +6,7 @@ description: >
   CloudFormation.  It also bootstraps Puppet.
 provider: aws
 parameters:
-  FrontendInstanceType: m1.small
-  FrontendInstanceCount: 2
-  BackendInstanceType: m1.small
-  BackendInstanceCount: 2
+  StatelessTierInstanceType: m1.small
+  StatelessTierInstanceCount: 2
+  StatefulTierInstanceType: m1.small
+  StatefulTierInstanceCount: 2

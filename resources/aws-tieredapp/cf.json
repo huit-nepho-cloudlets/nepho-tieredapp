@@ -27,8 +27,8 @@
   },
 
   "Mappings" : {
-    {% include 'Mappings/AWS-Instance-Mappings.json' %}
-    {% include 'Mappings/AWS-NAT-Instance-Mappings.json' %}
+    {% include 'Mappings/AWS-Instance-Mappings.json' %},
+    {% include 'Mappings/AWS-NAT-Instance-Mappings.json' %},
     {% include 'Mappings/Subnet-Mappings.json' %}
   },
 
@@ -71,10 +71,12 @@
   },
 
   "Outputs" : {
+{#
     {% include 'Outputs/BastionHost.json' %},
     {{ elb_url.elb(name="Public") }},
     {{ elb_url.elb(name="Private") }},
     {{ rds_out.mysql(name="Persistence") }},
+#}    
     {{ s3_out.bucket(name="Persistence") }}
   }
 }

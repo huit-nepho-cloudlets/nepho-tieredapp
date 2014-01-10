@@ -16,19 +16,18 @@
   "Description" : "Three-tiered VPC Deployment",
 
   "Parameters" : {
-
     {% include 'Parameters/General-Instance-Parameters.json' %},
     {% include 'Parameters/AZ-Parameters.json' %},
     {% include 'Parameters/RDS-Parameters.json' %},
     {% include 'Parameters/SES-Parameters.json' %},
-    {{ inst_params.inst_params(name="Public") }},
-    {{ inst_params.inst_params(name="Private") }}
-
+    {% include 'Parameters/NAT-Instance-Parameters.json' %},    
+    {{ inst_params.inst_params(name="StatelessTier") }},
+    {{ inst_params.inst_params(name="StatefulTier") }}
   },
 
   "Mappings" : {
-    {% include 'Mappings/AWS-Instance-Mappings.json' %}
-    {% include 'Mappings/AWS-NAT-Instance-Mappings.json' %}
+    {% include 'Mappings/AWS-Instance-Mappings.json' %},
+    {% include 'Mappings/AWS-NAT-Instance-Mappings.json' %},
     {% include 'Mappings/Subnet-Mappings.json' %}
   },
 
@@ -40,24 +39,24 @@
 
     {{ bucket.bucket(name='Persistence') }},
 
-    {{ network.public_network(name="Public", subnet_space="PublicA") }},
-    {{ network.private_network(name="Private", subnet_space="PrivateTier1A", nat_device='NATDevice') }},
-    {{ network.private_network(name="DataA", subnet_space="DataA", nat_device='NATDevice') }},
-    {{ network.private_network(name="DataB", subnet_space="DataB", nat_device='NATDevice') }},
+    {{ network.public_network( name="Public",  avail_zone='{"Ref":"AZ1"}', subnet_space="PublicA") }},
+    {{ network.private_network(name="Private", avail_zone='{"Ref":"AZ1"}', subnet_space="PrivateTier1A", nat_device='NATDevice') }},
+    {{ network.private_network(name="DataA",   avail_zone='{"Ref":"AZ1"}', subnet_space="DataA", nat_device='NATDevice') }},
+    {{ network.private_network(name="DataB",   avail_zone='{"Ref":"AZ2"}', subnet_space="DataB", nat_device='NATDevice') }},
 
     {# Stateless tier #}
-    {{ host.host(name='StatelessTierHost', ports=[80], subnet='PrivateSubnet') }},
+    {{ host.host(name='StatelessTier', ports=[80], subnet='PrivateSubnet') }},
     {{ elb.load_balancer(name='Public', subnet='PublicSubnet', port=80) }},
-    {{ fleet.fleet(name='Stateless',
-                   subnet='Private',
+    {{ fleet.fleet(name='StatelessTier',
+                   subnet='PrivateSubnet',
                    elb='PublicElasticLoadBalancer',
                    bucket='PersistenceS3Bucket')
      }},
 
     {# Stateful tier #}
-    {{ host.host(name='StatefulTierHost', ports=[8080], subnet='PrivateSubnet') }},
+    {{ host.host(name='StatefulTier', ports=[8080], subnet='PrivateSubnet') }},
     {{ elb.load_balancer(name='Private', subnet='PrivateSubnet', port=8080) }},
-    {{ fleet.fleet(name='Stateful',
+    {{ fleet.fleet(name='StatefulTier',
                    ports=[8080],
                    subnet='PrivateSubnet',
                    elb='PrivateElasticLoadBalancer',
@@ -72,10 +71,11 @@
 
   "Outputs" : {
     {% include 'Outputs/BastionHost.json' %},
-    {{ elb_url.elb(name="Public") }},
-    {{ elb_url.elb(name="Private") }},
+    {{ elb_url.elb(name="PublicElasticLoadBalancer") }},
+    {{ elb_url.elb(name="PrivateElasticLoadBalancer") }},
     {{ rds_out.mysql(name="Persistence") }},
-    {{ s3_out.bucket(name="Persistence") }}
+    {{ s3_out.bucket(name="PersistenceS3Bucket") }}
+    
   }
 }
 {# vim: set ft=jinja ts=4 sw=2 tw=0 et=1 foldmethod=syntax :#}

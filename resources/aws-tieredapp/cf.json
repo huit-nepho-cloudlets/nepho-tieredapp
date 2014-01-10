@@ -39,10 +39,10 @@
 
     {{ bucket.bucket(name='Persistence') }},
 
-    {{ network.public_network(name="Public", subnet_space="PublicA") }},
-    {{ network.private_network(name="Private", subnet_space="PrivateTier1A", nat_device='NATDevice') }},
-    {{ network.private_network(name="DataA", subnet_space="DataA", nat_device='NATDevice') }},
-    {{ network.private_network(name="DataB", subnet_space="DataB", nat_device='NATDevice') }},
+    {{ network.public_network( name="Public",  avail_zone='{"Ref":"AZ1"}', subnet_space="PublicA") }},
+    {{ network.private_network(name="Private", avail_zone='{"Ref":"AZ1"}', subnet_space="PrivateTier1A", nat_device='NATDevice') }},
+    {{ network.private_network(name="DataA",   avail_zone='{"Ref":"AZ1"}', subnet_space="DataA", nat_device='NATDevice') }},
+    {{ network.private_network(name="DataB",   avail_zone='{"Ref":"AZ2"}', subnet_space="DataB", nat_device='NATDevice') }},
 
     {# Stateless tier #}
     {{ host.host(name='StatelessTier', ports=[80], subnet='PrivateSubnet') }},

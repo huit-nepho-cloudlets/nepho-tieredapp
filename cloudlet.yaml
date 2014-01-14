@@ -1,5 +1,5 @@
 --- # nepho-tieredapp
-version: 0.0.2
+version: 0.0.3
 format: 1
 source: https://github.com:huit/nepho-tieredapp.git
 author: Harvard University Information Technology
@@ -11,5 +11,3 @@ description: >
   stack, the middle tier is for "stateful" components, and the back tier
   provides a persistence layer via RDS and S3.
 projectpage: http://github.com/huit/nepho-tieredapp
-parameters:
-  AWSRegion: us-east-1

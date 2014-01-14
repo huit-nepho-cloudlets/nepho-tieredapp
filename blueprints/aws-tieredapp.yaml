@@ -3,12 +3,29 @@ summary: Three-tiered web application environment
 description: >
   This more complex example creates a VPC with stateless and stateful subnets
   on EC2, and a S3 bucket and RDS database for shared storage, using
-  CloudFormation.  It also bootstraps Puppet.
+  CloudFormation.
 provider: aws
 parameters:
+  AWSRegion: us-east-1
   AZ1: us-east-1a
   AZ2: us-east-1b
+  DBName: database
+  DBUsername: dbuser
+  DBPassword: changeme
+  DBEngine: MySQL
+  DBEngineLicenseModel: general-public-license
+  DBEngineVersion: 5.5
+  DBClass: db.m1.small
+  DBAllocatedStorage: 10
+  MultiAZDatabase: false
   StatelessTierInstanceType: m1.small
   StatelessTierInstanceCount: 2
+  StatelessTierInstanceRole: proxy
   StatefulTierInstanceType: m1.small
   StatefulTierInstanceCount: 2
+  StatefulTierInstanceRole: application
+  SESSMTP: false
+  SESEndpoint: email-smtp.us-east-1.amazonaws.com
+  SESPort: 25
+  SESUsername: NEPHO_CHANGEME_USERNAME
+  SESPassword: NEPHO_CHANGEME_PASSWORD

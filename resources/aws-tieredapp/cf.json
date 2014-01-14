@@ -20,7 +20,7 @@
     {% include 'Parameters/AZ-Parameters.json' %},
     {% include 'Parameters/RDS-Parameters.json' %},
     {% include 'Parameters/SES-Parameters.json' %},
-    {% include 'Parameters/NAT-Instance-Parameters.json' %},    
+    {% include 'Parameters/NAT-Instance-Parameters.json' %},
     {{ inst_params.inst_params(name="StatelessTier") }},
     {{ inst_params.inst_params(name="StatefulTier") }}
   },
@@ -73,9 +73,9 @@
     {% include 'Outputs/BastionHost.json' %},
     {{ elb_url.elb(name="PublicElasticLoadBalancer") }},
     {{ elb_url.elb(name="PrivateElasticLoadBalancer") }},
-    {{ rds_out.mysql(name="Persistence") }},
+    {{ rds_out.oracle(name="Persistence") }},
     {{ s3_out.bucket(name="PersistenceS3Bucket") }}
-    
+
   }
 }
 {# vim: set ft=jinja ts=4 sw=2 tw=0 et=1 foldmethod=syntax :#}

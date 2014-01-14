@@ -6,6 +6,8 @@ description: >
   CloudFormation.  It also bootstraps Puppet.
 provider: aws
 parameters:
+  AZ1: us-east-1a
+  AZ2: us-east-1b
   StatelessTierInstanceType: m1.small
   StatelessTierInstanceCount: 2
   StatefulTierInstanceType: m1.small

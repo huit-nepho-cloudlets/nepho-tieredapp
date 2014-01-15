@@ -78,4 +78,4 @@
 
   }
 }
-{# vim: set ft=jinja ts=4 sw=2 tw=0 et=1 foldmethod=syntax :#}
+{# vim: set ft=jinja ts=4 sw=2 tw=0 foldmethod=syntax :#}
